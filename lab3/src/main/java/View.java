@@ -32,7 +32,7 @@ public class View {
     public void updateText(){
         String txt = "";
         if ("" != weather.sky){
-            txt += "Погода: " + weather.temperature + " градусов, " + weather.sky + "\n" + "\n";
+            txt += "Погода: " + weather.temperature + " ℃, " + weather.sky + "\n" + "\n";
         }
         if (placeWithDescriptionsList.isEmpty()){
             txt += "Поблизости ничего не найдено";
@@ -49,7 +49,7 @@ public class View {
 
     public void updateWeather(PlaceWithWeather place){
         weather.temperature = place.getTemp();
-        weather.sky = place.getWeather();
+        weather.sky = Translator.translateWeather(place.getWeather());
         updateText();
     }
 
