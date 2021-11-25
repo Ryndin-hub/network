@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import jsonClasses.*;
 
-public class View extends JFrame {
+public class View {
+    JFrame frame;
     JPanel content;
     JComboBox<String> comboBox;
     JTextArea text;
@@ -99,10 +100,10 @@ public class View extends JFrame {
     }
 
     public View() {
-        super("Lab 3");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(600,800);
-        setResizable(false);
+        frame = new JFrame("lab 3");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(600,800);
+        frame.setResizable(false);
 
         model = new Model(this);
 
@@ -124,7 +125,7 @@ public class View extends JFrame {
         JScrollPane scroll = new JScrollPane(text);
         content.add(scroll);
 
-        setContentPane(content);
-        setVisible(true);
+        frame.setContentPane(content);
+        frame.setVisible(true);
     }
 }
