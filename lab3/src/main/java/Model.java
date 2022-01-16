@@ -2,12 +2,13 @@ import lombok.SneakyThrows;
 import java.io.IOException;
 import java.util.List;
 import jsonClasses.*;
+import java.util.concurrent.CompletableFuture;
 
 public class Model {
-    View view;
-    List<Place> currentPlaceList;
-    List<PlaceInRadius> currentPlaceInRadiusList;
-    APIParser apiParser = new APIParser();
+    private View view;
+    private List<Place> currentPlaceList;
+    private List<PlaceInRadius> currentPlaceInRadiusList;
+    private APIParser apiParser = new APIParser();
 
     private class FindDescription extends Thread{
         String xid;
@@ -28,35 +29,63 @@ public class Model {
         View view;
         @SneakyThrows
         public void run(){
-            PlaceWithWeather place = apiParser.getWeatherByPosition(position);
-            view.updateWeather(place);
+            CompletableFuture.supplyAsync(() -> {
+                try {
+                    return apiParser.getWeatherByPosition(position);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            })
+                    .thenAcceptAsync(place -> {
+                        view.updateWeather(place);
+                    });
         }
     }
 
-    public void findPlacesInRadius(int index) throws IOException {
-        List<PlaceInRadius> placeInRadiusList = apiParser.getPlacesInRadius(currentPlaceList.get(index).getPosition());
-        placeInRadiusList.removeIf(place -> place.getName().equals(""));
-        currentPlaceInRadiusList = placeInRadiusList;
-        view.setPlaces(placeInRadiusList);
-        FindWeather findWeather = new FindWeather();
-        findWeather.view = view;
-        findWeather.position = currentPlaceList.get(index).getPosition();
-        findWeather.start();
-        for (PlaceInRadius place : placeInRadiusList){
-            FindDescription findDescription = new FindDescription();
-            findDescription.view = view;
-            findDescription.xid = place.getXid();
-            findDescription.start();
-        }
+    public void findPlacesInRadius(int index){
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                return apiParser.getPlacesInRadius(currentPlaceList.get(index).getPosition());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        })
+                .thenAcceptAsync(placeInRadiusList -> {
+                    placeInRadiusList.removeIf(place -> place.getName().equals(""));
+                    currentPlaceInRadiusList = placeInRadiusList;
+                    view.setPlaces(placeInRadiusList);
+                    FindWeather findWeather = new FindWeather();
+                    findWeather.view = view;
+                    findWeather.position = currentPlaceList.get(index).getPosition();
+                    findWeather.start();
+                    for (PlaceInRadius place : placeInRadiusList){
+                        FindDescription findDescription = new FindDescription();
+                        findDescription.view = view;
+                        findDescription.xid = place.getXid();
+                        findDescription.start();
+                    }
+                });
     }
 
-    public void findPlaces(String placeName) throws IOException {
-        List<Place> placeList = apiParser.getPlacesByName(placeName);
-        currentPlaceList = placeList;
-        view.updateComboBox(placeList);
+    public void findPlaces(String placeName){
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                return apiParser.getPlacesByName(placeName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        })
+                .thenAcceptAsync(placeList -> {
+                    if (placeList == null) return;
+                    currentPlaceList = placeList;
+                    view.updateComboBox(placeList);
+                });
     }
 
-    public Model(View _view){
+    public Model(View _view) throws IOException {
         view = _view;
     }
 }

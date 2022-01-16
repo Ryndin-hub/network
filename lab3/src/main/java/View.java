@@ -9,25 +9,13 @@ import java.util.List;
 import jsonClasses.*;
 
 public class View {
-    JFrame frame;
-    JPanel content;
-    JComboBox<String> comboBox;
-    JTextArea text;
-    Model model;
-    List<PlaceWithDescription> placeWithDescriptionsList = new ArrayList<>();
-    Weather weather = new Weather();
-
-    private static class PlaceWithDescription{
-        String name;
-        String description;
-        String xid;
-        Position position;
-    }
-
-    private static class Weather{
-        double temperature;
-        String sky;
-    }
+    private JFrame frame;
+    private JPanel content;
+    private JComboBox<String> comboBox;
+    private JTextArea text;
+    private Model model;
+    private List<PlaceWithDescriptionView> placeWithDescriptionsList = new ArrayList<>();
+    private Weather weather = new Weather();
 
     public void updateText(){
         String txt = "";
@@ -39,7 +27,7 @@ public class View {
             text.setText(txt);
             return;
         }
-        for (PlaceWithDescription place : placeWithDescriptionsList){
+        for (PlaceWithDescriptionView place : placeWithDescriptionsList){
             txt += place.name + "\n";
             if ("" != place.description) txt += "Описание: " + place.description + "\n";
             txt += "\n";
@@ -54,7 +42,7 @@ public class View {
     }
 
     public void updateDescription(String xid, String description){
-        for (PlaceWithDescription place : placeWithDescriptionsList){
+        for (PlaceWithDescriptionView place : placeWithDescriptionsList){
             if (place.xid == xid){
                 place.description = description;
                 updateText();
@@ -66,7 +54,7 @@ public class View {
         placeWithDescriptionsList.clear();
         weather.sky = "";
         for (PlaceInRadius placeInRadius : placeInRadiusList){
-            PlaceWithDescription newPlace = new PlaceWithDescription();
+            PlaceWithDescriptionView newPlace = new PlaceWithDescriptionView();
             newPlace.name = placeInRadius.getName();
             newPlace.description = "";
             newPlace.xid = placeInRadius.getXid();
@@ -94,12 +82,12 @@ public class View {
 
         @SneakyThrows
         public void actionPerformed(ActionEvent e) {
-            if (0 == e.getModifiers() && "comboBoxChanged" == e.getActionCommand()) enterPressed();
+            if (0 == e.getModifiers() && "comboBoxEdited" == e.getActionCommand()) enterPressed();
             else if (16 == e.getModifiers() && "comboBoxChanged" == e.getActionCommand()) placeSelected();
         }
     }
 
-    public View() {
+    public View() throws IOException {
         frame = new JFrame("lab 3");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600,800);

@@ -10,11 +10,21 @@ public class Place {
     public String toString(){
         String string = "";
         string += name;
-        if (null != country) string += ", " + country;
-        if (null != city) string += ", " + city;
-        if (null != state) string += ", " + state;
-        if (null != street) string += ", " + street;
-        if (null != houseNumber) string += ", " + houseNumber;
+        if (null != country) {
+            string += ", " + country;
+        }
+        if (null != city) {
+            string += ", " + city;
+        }
+        if (null != state) {
+            string += ", " + state;
+        }
+        if (null != street) {
+            string += ", " + street;
+        }
+        if (null != houseNumber) {
+            string += ", " + houseNumber;
+        }
         return string;
     }
     private String name;
