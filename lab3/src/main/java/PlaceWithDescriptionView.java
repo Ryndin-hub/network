@@ -1,8 +1,8 @@
 import jsonClasses.Position;
 
 public class PlaceWithDescriptionView{
-    String name;
-    String description;
-    String xid;
-    Position position;
+    public String name;
+    public String description;
+    public String xid;
+    public Position position;
 }

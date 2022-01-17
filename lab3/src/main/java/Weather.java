@@ -1,4 +1,4 @@
 public class Weather{
-    double temperature;
-    String sky;
+    public double temperature;
+    public String sky;
 }

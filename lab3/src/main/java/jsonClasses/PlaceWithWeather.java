@@ -26,8 +26,7 @@ class PlaceWeather {
 @Getter
 @Setter
 public class PlaceWithWeather {
-    private @JsonProperty("weather")
-    List<PlaceWeather> weather;
+    private @JsonProperty("weather") List<PlaceWeather> weather;
     private PlaceTemperature main;
     public double getTemp(){
         return main.getTemp();

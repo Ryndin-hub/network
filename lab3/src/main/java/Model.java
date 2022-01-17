@@ -10,37 +10,27 @@ public class Model {
     private List<PlaceInRadius> currentPlaceInRadiusList;
     private APIParser apiParser = new APIParser();
 
-    private class FindDescription extends Thread{
-        String xid;
-        View view;
-        @SneakyThrows
-        public void run(){
-            PlaceWithDescription placeWithDescription = apiParser.placeDescriptionByXid(xid);
-            if (null != placeWithDescription.getInfo() && null != placeWithDescription.getDescr()) {
-                view.updateDescription(xid, (placeWithDescription.getDescr()));
-            } else if (null != placeWithDescription.getWikipedia_extracts() && null != placeWithDescription.getText()) {
-                view.updateDescription(xid, (placeWithDescription.getText()));
-            } else view.updateDescription(xid,"отсутствует");
-        }
+    private void findDescription(String xid, View view) throws IOException {
+        PlaceWithDescription placeWithDescription = apiParser.placeDescriptionByXid(xid);
+        if (null != placeWithDescription.getInfo() && null != placeWithDescription.getDescr()) {
+            view.updateDescription(xid, (placeWithDescription.getDescr()));
+        } else if (null != placeWithDescription.getWikipedia_extracts() && null != placeWithDescription.getText()) {
+            view.updateDescription(xid, (placeWithDescription.getText()));
+        } else view.updateDescription(xid,"отсутствует");
     }
 
-    private class FindWeather extends Thread{
-        Position position;
-        View view;
-        @SneakyThrows
-        public void run(){
-            CompletableFuture.supplyAsync(() -> {
-                try {
-                    return apiParser.getWeatherByPosition(position);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            })
-                    .thenAcceptAsync(place -> {
-                        view.updateWeather(place);
-                    });
-        }
+    private void findWeather(Position position, View view){
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                return apiParser.getWeatherByPosition(position);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        })
+                .thenAcceptAsync(place -> {
+                    view.updateWeather(place);
+                });
     }
 
     public void findPlacesInRadius(int index){
@@ -56,15 +46,13 @@ public class Model {
                     placeInRadiusList.removeIf(place -> place.getName().equals(""));
                     currentPlaceInRadiusList = placeInRadiusList;
                     view.setPlaces(placeInRadiusList);
-                    FindWeather findWeather = new FindWeather();
-                    findWeather.view = view;
-                    findWeather.position = currentPlaceList.get(index).getPosition();
-                    findWeather.start();
+                    findWeather(currentPlaceList.get(index).getPosition(),view);
                     for (PlaceInRadius place : placeInRadiusList){
-                        FindDescription findDescription = new FindDescription();
-                        findDescription.view = view;
-                        findDescription.xid = place.getXid();
-                        findDescription.start();
+                        try {
+                            findDescription(place.getXid(),view);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
     }
